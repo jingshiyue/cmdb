@@ -1,0 +1,141 @@
+self.get_asset_type_display()
+self.get_sub_asset_type_display()
+on_delete=models.CASCADE 删除关联
+on_delete=models.SET_NULL 不会删除
+status = models.SmallIntegerField(choices=asset_status, default=0, verbose_name='设备状态') #小整数
+asset_type = models.CharField(choices=asset_type_choice, max_length=64, default='server', verbose_name='资产类型') #choices
+manage_ip = models.GenericIPAddressField(null=True, blank=True, verbose_name='管理IP') #IPV4或者IPV6地址，字符串形式
+tags = models.ManyToManyField('Tag', blank=True, verbose_name='标签')
+business_unit = models.ForeignKey('BusinessUnit', null=True, blank=True, verbose_name='所属业务线',on_delete=models.SET_NULL)
+expire_day = models.DateField(null=True, blank=True, verbose_name="过保日期")
+price = models.FloatField(null=True, blank=True, verbose_name="价格")
+memo = models.TextField(null=True, blank=True, verbose_name='备注')
+c_time = models.DateTimeField(auto_now_add=True, verbose_name='批准日期')
+cpu_count = models.PositiveSmallIntegerField('CPU物理数量', blank=True, null=True)
+approved = models.BooleanField('是否批准', default=False)
+approved_by = models.ForeignKey(User, null=True, blank=True, verbose_name='批准人', related_name='approved_by',on_delete=models.SET_NULL) #关联django.contrib.auto.models内置的User
+auto_now无论是你添加还是修改对象，时间为你添加或者修改的时间。
+auto_now_add为添加时的时间，更新对象时不会有变动。
+asset = models.ForeignKey('Asset', on_delete=models.CASCADE) #该定义在内存里，一个设备对应多个内存条。删除设备Asset，内存条也会删除
+verbose_name = '硬盘'
+verbose_name_plural = "硬盘"
+unique_together = ('asset', 'sn')
+
+ALLOWED_HOSTS = ["*"] 
+这表示接收所有同一局域网内的网络访问。
+
+然后以0.0.0.0:8000的参数启动CMDB项目服务器，表示对局域网内所有ip开放服务。
+在这个report视图上忽略csrf验证，可以通过Django的@csrf_exempt装饰器
+127.0.0.1 本机
+0 局域网内所以机器
+
+*********整体只要一步出错，会回滚*****************
+        try:
+            self._create_server(asset)  # 创建服务器
+            self._create_CPU(asset)  # 创建CPU
+            self._create_RAM(asset)  # 创建内存
+            self._create_disk(asset)  # 创建硬盘
+            self._create_nic(asset)  # 创建网卡
+            self._create_manufacturer(asset)  # 创建厂商
+            self._delete_original_asset()  # 从待审批资产区删除已审批上线的资产
+        except Exception as e:
+            asset.delete()  #用try catch delete，回滚体现
+**************************
+cpu = models.CPU.objects.create(asset=asset)
+models.Manufacturer.objects.get_or_create(name=m)
+
+class RAM(models.Model):
+    """内存组件"""
+
+*********创建一对多实例*****************
+    asset = models.ForeignKey('Asset', on_delete=models.CASCADE)
+    sn = models.CharField('SN号', max_length=128, blank=True, null=True)
+    model = models.CharField('内存型号', max_length=128, blank=True, null=True)
+    manufacturer = models.CharField('内存制造商', max_length=128, blank=True, null=True)
+    slot = models.CharField('插槽', max_length=64)
+    capacity = models.IntegerField('内存大小(GB)', blank=True, null=True)
+
+            ram = models.RAM()
+            ram.asset = asset  #一对多
+            ram.slot = ram_dict.get('slot')
+            ram.sn = ram_dict.get('sn')
+            ram.model = ram_dict.get('model')
+            ram.manufacturer = ram_dict.get('manufacturer')
+            ram.capacity = ram_dict.get('capacity', 0)
+            ram.save()
+**************************
+*******一对一创建实例*******************
+class CPU(models.Model):
+    """CPU组件"""
+
+    asset = models.OneToOneField('Asset', on_delete=models.CASCADE)  # 设备上的cpu肯定都是一样的，所以不需要建立多个cpu数据，一条就可以，因此使用一对一。
+    cpu_model = models.CharField('CPU型号', max_length=128, blank=True, null=True)
+    cpu_count = models.PositiveSmallIntegerField('物理CPU个数', default=1)
+    cpu_core_count = models.PositiveSmallIntegerField('CPU核数', default=1)
+
+        cpu = models.CPU.objects.create(asset=asset) #根据asset直接关联到cpu实例
+        cpu.cpu_model = self.new_asset.cpu_model
+        cpu.cpu_count = self.new_asset.cpu_count
+        cpu.cpu_core_count = self.new_asset.cpu_core_count
+        cpu.save()
+
+**************************
+self.new_asset.delete()
+
+data = json.loads(asset_data)
+if not data:
+    return HttpResponse('没有数据！')
+if not issubclass(dict, type(data)):
+    return HttpResponse('数据必须为字典格式！')
+
+
+**************************
+data = {"asset_data": json.dumps(data)}
+data_encode = urllib.parse.urlencode(data).encode()
+response = urllib.request.urlopen(url=url, data=data_encode, timeout=settings.Params['request_timeout'])
+message = response.read().decode()
+print("返回结果：%s" % message)
+urlopen #但有data时是post请求，没有是get请求
+**************************
+sn = data.get('sn', None)  #字典里如果没有sn，默认None
+dict.get(key, default=None)
+getattr(a, 'bar')        # 获取a的属性 bar 值 getattr(object, name[, default])
+manufacturer_obj, _ = models.Manufacturer.objects.get_or_create(name=m)
+
+get_or_create会返回一个tuple,第一个值是查到或者创建的数据，第二个值是一个布尔，表示是否执行了创建操作。
+
+服务器与资产是一对一，资产与内存是一对多，所以服务器与内存是一对多
+
+models.NewAssetApprovalZone.objects.update_or_create(sn=self.data['sn'], defaults=defaults)
+
+====================定义admin后台的actions===========================
+class NewAssetAdmin(admin.ModelAdmin):
+    list_display = ['asset_type', 'sn', 'model', 'manufacturer', 'c_time', 'm_time']
+    list_filter = ['asset_type', 'manufacturer', 'c_time']
+    search_fields = ('sn',)
+
+    actions = ['approve_selected_assets']
+
+    def approve_selected_assets(self, request, queryset):
+        selected = request.POST.getlist(admin.ACTION_CHECKBOX_NAME)   #选中的项，返回选中的id列表
+        success_upline_number = 0
+        for asset_id in selected:
+            obj = asset_handler.ApproveAsset(request, asset_id)
+            ret = obj.asset_upline()
+            if ret:
+                success_upline_number += 1
+
+        self.message_user(request, "成功批准  %s  条新资产上线！" % success_upline_number)
+
+    approve_selected_assets.short_description = '批准新资产上线'
+===========================================
+        asset = models.Asset.objects.create(asset_type=self.new_asset.asset_type,
+                                            name="%s: %s" % (self.new_asset.asset_type, self.new_asset.sn),
+                                            sn=self.new_asset.sn,
+                                            approved_by=self.request.user,
+                                            )
+===========================================
+cpu = models.CPU.objects.create(asset=asset)  #asset都是cpu、ram models中的外键
+ram.asset = asset
+===========================================
+locals()  类型是dict

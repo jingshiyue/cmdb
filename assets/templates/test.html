@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title></title>
+        <style type="text/css">
+            #div{
+                width: 500px;
+                height: 400px;
+                background-color: yellow;
+                display: flex;
+                /*flex-direction: column-reverse;*/
+                /*flex-wrap: wrap;*/
+                /*justify-content: space-around;*/
+                /*align-items: stretch;*/
+                /*align-content: stretch;*/
+            }
+            #div div{
+                width: 100px;
+                height: 100px;
+                background-color: blue;
+                color: white;
+                font-size: 30px;
+                /*flex-shrink: 0;*/
+            }
+            #div .div1{
+                width: 100px;
+                height: 100px;
+                background-color: blueviolet;
+                color: white;
+                font-size: 30px;
+            }
+            #div .div2{
+                width: 100px;
+                height: 100px;
+                background-color: brown;
+                color: white;
+                font-size: 30px;
+            }
+            #div .div3{
+                /*flex-grow: 2;*/
+                background-color: green;
+                /*flex-basis: 200px;*/
+                align-self: flex-end;
+            }
+
+             div{
+                width: 100px;
+                height: 100px;
+                background-color: blue;
+                color: white;
+                font-size: 30px;
+                /*flex-shrink: 0;*/
+            }
+             .div1{
+                width: 100px;
+                height: 100px;
+                background-color: blueviolet;
+                color: white;
+                font-size: 30px;
+            }
+             .div2{
+                width: 100px;
+                height: 100px;
+                background-color: brown;
+                color: white;
+                font-size: 30px;
+            }
+             .div3{
+                /*flex-grow: 2;*/
+                background-color: green;
+                /*flex-basis: 200px;*/
+                align-self: flex-end;
+            }
+        </style>
+    </head>
+    
+    <body>
+        <div id="div">
+            <div class="div">0</div>
+            <div class="div1">1</div>
+            <div class="div2">2</div>
+            <div class="div3">3</div>
+        </div>
+
+        <!-- <div class="div">0</div>
+        <div class="div1">1</div>
+        <div class="div2">2</div>
+        <div class="div3">3</div>  -->
+
+    </body>
+</html>
